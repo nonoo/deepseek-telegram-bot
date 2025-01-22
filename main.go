@@ -28,11 +28,19 @@ func convertLatexToHTML(latex string) string {
 	return latex
 }
 
+func removeNewlineAfterBlockquote(s string) string {
+	return strings.ReplaceAll(s, "<blockquote>\n", "<blockquote>")
+}
+
+func filterText(s string) string {
+	return removeNewlineAfterBlockquote(filterHTML(convertLatexToHTML(s)))
+}
+
 func sendMessage(ctx context.Context, chatID int64, s string) (msg *models.Message) {
 	var err error
 	msg, err = telegramBot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID:    chatID,
-		Text:      convertLatexToHTML(s),
+		Text:      filterText(s),
 		ParseMode: models.ParseModeHTML,
 	})
 	if err != nil {
@@ -49,7 +57,7 @@ func sendReplyToMessage(ctx context.Context, replyToMsg *models.Message, s strin
 			MessageID: replyToMsg.ID,
 		},
 		ChatID:    replyToMsg.Chat.ID,
-		Text:      convertLatexToHTML(s),
+		Text:      filterText(s),
 		ParseMode: models.ParseModeHTML,
 	})
 	if err != nil {
@@ -64,7 +72,7 @@ func editReplyToMessage(ctx context.Context, replyMsg *models.Message, s string)
 	msg, err = telegramBot.EditMessageText(ctx, &bot.EditMessageTextParams{
 		MessageID: replyMsg.ID,
 		ChatID:    replyMsg.Chat.ID,
-		Text:      convertLatexToHTML(s),
+		Text:      filterText(s),
 		ParseMode: models.ParseModeHTML,
 	})
 	if err != nil {

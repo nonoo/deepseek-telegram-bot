@@ -18,14 +18,14 @@ type cmdHandlerType struct {
 }
 
 func (c *cmdHandlerType) reply(ctx context.Context, msg *models.Message, text string) *models.Message {
-	if msg.Chat.ID >= 0 {
+	if msg.Chat.ID >= 0 || msg == nil {
 		return sendMessage(ctx, msg.Chat.ID, text)
 	}
 	return sendReplyToMessage(ctx, msg, text)
 }
 
 func (c *cmdHandlerType) editReply(ctx context.Context, msg *models.Message, replyMsg *models.Message, text string) *models.Message {
-	if replyMsg == nil {
+	if replyMsg == nil || msg == nil {
 		return c.reply(ctx, msg, text)
 	}
 
