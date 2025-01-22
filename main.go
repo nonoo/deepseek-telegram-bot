@@ -37,6 +37,7 @@ func sendMessage(ctx context.Context, chatID int64, s string) (msg *models.Messa
 	})
 	if err != nil {
 		fmt.Println("  send error:", err)
+		msg = nil
 	}
 	return
 }
