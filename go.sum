@@ -1,0 +1,6 @@
+github.com/cohesion-org/deepseek-go v0.0.0-20241216210207-8ae1bb3c99dc h1:F39hO6SdqxdSaEGDga4WPt2vYtqvQX73Nb7fVD5IVxY=
+github.com/cohesion-org/deepseek-go v0.0.0-20241216210207-8ae1bb3c99dc/go.mod h1:je2+GYTRsFGimyZNP4hpAcARQ7dcMaidT5YisexH0w0=
+github.com/go-telegram/bot v1.13.3 h1:r2erpHI5rMQsR5TFWJ/XVqWHq9R228fcaejLFvXJsmM=
+github.com/go-telegram/bot v1.13.3/go.mod h1:i2TRs7fXWIeaceF3z7KzsMt/he0TwkVC680mvdTFYeM=
+golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 h1:yqrTHse8TCMW1M1ZCP+VAR/l0kKxwaAIqN/il7x4voA=
+golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8/go.mod h1:tujkw807nyEEAamNbDrEGzRav+ilXA7PCRAd6xsmwiU=

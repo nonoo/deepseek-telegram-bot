@@ -1,0 +1,17 @@
+#!/bin/bash
+
+. config.inc.sh
+
+bin=./deepseek-telegram-bot
+if [ ! -x "$bin" ]; then
+	bin="go run *.go"
+fi
+
+DS_API_KEY=$DS_API_KEY \
+BOT_TOKEN=$BOT_TOKEN \
+DS_INITIAL_PROMPT=$DS_INITIAL_PROMPT \
+DS_TEMPERATURE=$DS_TEMPERATURE \
+ALLOWED_USERIDS=$ALLOWED_USERIDS \
+ADMIN_USERIDS=$ADMIN_USERIDS \
+ALLOWED_GROUPIDS=$ALLOWED_GROUPIDS \
+$bin $*
