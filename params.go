@@ -15,9 +15,10 @@ type paramsType struct {
 	DSAPIKey string
 	BotToken string
 
-	DSInitialPrompt string
-	DSTemperature   float64
-	DSHistorySize   int
+	DSInitialPrompt  string
+	DSTemperature    float64
+	DSMaxReplyTokens int
+	DSHistorySize    int
 
 	AllowedUserIDs  []int64
 	AdminUserIDs    []int64
@@ -30,6 +31,7 @@ func (p *paramsType) Init() error {
 	flag.StringVar(&p.DSAPIKey, "ds-api-key", "", "deepseek api key")
 	flag.StringVar(&p.BotToken, "bot-token", "", "telegram bot token")
 	flag.StringVar(&p.DSInitialPrompt, "ds-initial-prompt", "", "deepseek initial prompt")
+	DSMaxReplyTokensFlag := flag.Int("ds-max-reply-tokens", math.MaxInt, "deepseek max reply tokens")
 	DSHistorySizeFlag := flag.Int("ds-history-size", math.MaxInt, "deepseek message history size")
 	flag.Float64Var(&p.DSTemperature, "ds-temperature", math.MaxFloat64, "deepseek temperature")
 	var allowedUserIDs string
@@ -61,6 +63,21 @@ func (p *paramsType) Init() error {
 			p.DSTemperature = temperature
 		} else {
 			p.DSTemperature = 1.3
+		}
+	}
+
+	if DSMaxReplyTokensFlag != nil && *DSMaxReplyTokensFlag != math.MaxInt {
+		p.DSMaxReplyTokens = *DSMaxReplyTokensFlag
+	} else {
+		maxReplyTokensStr := os.Getenv("DS_MAX_REPLY_TOKENS")
+		if maxReplyTokensStr != "" {
+			maxReplyTokens, err := strconv.Atoi(maxReplyTokensStr)
+			if err != nil {
+				return fmt.Errorf("invalid deepseek max reply tokens: %s", maxReplyTokensStr)
+			}
+			p.DSMaxReplyTokens = maxReplyTokens
+		} else {
+			p.DSMaxReplyTokens = 2048
 		}
 	}
 

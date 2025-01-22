@@ -36,6 +36,7 @@ func (c *cmdHandlerType) DS(ctx context.Context, msg *models.Message) {
 	request := &deepseek.StreamChatCompletionRequest{
 		Model:       deepseek.DeepSeekChat,
 		Temperature: float32(params.DSTemperature), // https://api-docs.deepseek.com/quick_start/parameter_settings
+		MaxTokens:   params.DSMaxReplyTokens,
 		Messages: []deepseek.ChatCompletionMessage{{
 			Role:    deepseek.ChatMessageRoleSystem,
 			Content: params.DSInitialPrompt,
