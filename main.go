@@ -19,11 +19,20 @@ var dsClient *deepseek.Client
 var telegramBot *bot.Bot
 var cmdHandler cmdHandlerType
 
+func convertLatexToHTML(latex string) string {
+	latex = strings.ReplaceAll(latex, `\[`, `<blockquite>`)
+	latex = strings.ReplaceAll(latex, `\]`, `</blockquote>`)
+	latex = strings.ReplaceAll(latex, `\(`, `<blockquote>`)
+	latex = strings.ReplaceAll(latex, `\)`, `</blockquote>`)
+
+	return latex
+}
+
 func sendMessage(ctx context.Context, chatID int64, s string) (msg *models.Message) {
 	var err error
 	msg, err = telegramBot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID:    chatID,
-		Text:      s,
+		Text:      convertLatexToHTML(s),
 		ParseMode: models.ParseModeHTML,
 	})
 	if err != nil {
@@ -39,7 +48,7 @@ func sendReplyToMessage(ctx context.Context, replyToMsg *models.Message, s strin
 			MessageID: replyToMsg.ID,
 		},
 		ChatID:    replyToMsg.Chat.ID,
-		Text:      s,
+		Text:      convertLatexToHTML(s),
 		ParseMode: models.ParseModeHTML,
 	})
 	if err != nil {
@@ -54,7 +63,7 @@ func editReplyToMessage(ctx context.Context, replyMsg *models.Message, s string)
 	msg, err = telegramBot.EditMessageText(ctx, &bot.EditMessageTextParams{
 		MessageID: replyMsg.ID,
 		ChatID:    replyMsg.Chat.ID,
-		Text:      s,
+		Text:      convertLatexToHTML(s),
 		ParseMode: models.ParseModeHTML,
 	})
 	if err != nil {
