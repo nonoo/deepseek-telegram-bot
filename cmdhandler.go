@@ -18,7 +18,7 @@ type cmdHandlerType struct {
 }
 
 func (c *cmdHandlerType) reply(ctx context.Context, msg *models.Message, text string) *models.Message {
-	if msg.Chat.ID >= 0 || msg == nil {
+	if msg == nil || msg.Chat.ID >= 0 {
 		return sendMessage(ctx, msg.Chat.ID, text)
 	}
 	return sendReplyToMessage(ctx, msg, text)
