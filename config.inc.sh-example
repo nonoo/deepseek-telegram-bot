@@ -1,5 +1,6 @@
 DS_API_KEY=
 BOT_TOKEN=
+CHAT_CMD=chat
 DS_INITIAL_PROMPT="You are a helpful assistant. Use Telegram HTML markdown. Only use the following HTML tags: b, i, u, s, a, code, blockquote. Do not use any other HTML tags. Do not use LaTeX formatting."
 DS_TEMPERATURE=1.3
 DS_MAX_REPLY_TOKENS=2048

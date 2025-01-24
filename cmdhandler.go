@@ -32,7 +32,7 @@ func (c *cmdHandlerType) editReply(ctx context.Context, msg *models.Message, rep
 	return editReplyToMessage(ctx, replyMsg, text)
 }
 
-func (c *cmdHandlerType) DS(ctx context.Context, msg *models.Message) {
+func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 	if c.dsMsgHistory == nil {
 		c.dsMsgHistory = make(map[int64][]deepseek.ChatCompletionMessage)
 	}
@@ -148,7 +148,7 @@ func (c *cmdHandlerType) Balance(ctx context.Context, msg *models.Message, cmdCh
 func (c *cmdHandlerType) Help(ctx context.Context, msg *models.Message, cmdChar string) {
 	sendReplyToMessage(ctx, msg, "🤖 DeepSeek Telegram Bot\n\n"+
 		"Available commands:\n\n"+
-		cmdChar+"ds - send chat message\n"+
+		cmdChar+params.ChatCmd+" - send chat message\n"+
 		cmdChar+"dsbalance - show balance\n"+
 		cmdChar+"dshelp - show this help\n\n"+
 		"For more information see https://github.com/nonoo/deepseek-telegram-bot")

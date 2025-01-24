@@ -34,6 +34,7 @@ Mandatory arguments are:
 
 - `-ds-api-key`: set this to your DeepSeek `API key`
 - `-bot-token`: set this to your Telegram bot's `token`
+- `-chat-cmd`: set this to the command to use to send messages to the bot
 - `-ds-initial-prompt`: set this to the initial prompt to send to the DeepSeek
   API
 - `-ds-temperature`: set this to the [temperature](https://api-docs.deepseek.com/quick_start/parameter_settings)
@@ -54,6 +55,7 @@ variable. Available OS environment variables are:
 
 - `DS_API_KEY`
 - `BOT_TOKEN`
+- `CHAT_CMD`
 - `DS_INITIAL_PROMPT`
 - `DS_TEMPERATURE`
 - `DS_HISTORY_SIZE`
@@ -63,7 +65,7 @@ variable. Available OS environment variables are:
 
 ## Supported commands
 
-- `ds (msg)` - send a message to the DeepSeek API
+- `chat (msg)` - send a message to the DeepSeek API
 - `dsbalance` - query the current API account balance
 - `dshelp` - show the help
 

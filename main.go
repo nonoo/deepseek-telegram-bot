@@ -128,9 +128,9 @@ func handleMessage(ctx context.Context, update *models.Update) {
 		cmdChar := string(cmd[0])
 		cmd = cmd[1:] // Cutting the command character.
 		switch cmd {
-		case "ds":
-			fmt.Println("  interpreting as cmd ds")
-			cmdHandler.DS(ctx, update.Message)
+		case params.ChatCmd:
+			fmt.Println("  interpreting as chat cmd")
+			cmdHandler.Chat(ctx, update.Message)
 			return
 		case "dsbalance":
 			fmt.Println("  interpreting as cmd dsbalance")
@@ -157,7 +157,7 @@ func handleMessage(ctx context.Context, update *models.Update) {
 	}
 
 	if update.Message.Chat.ID >= 0 || (update.Message.ReplyToMessage != nil && update.Message.ReplyToMessage.From.ID == telegramBot.ID()) {
-		cmdHandler.DS(ctx, update.Message)
+		cmdHandler.Chat(ctx, update.Message)
 	}
 }
 

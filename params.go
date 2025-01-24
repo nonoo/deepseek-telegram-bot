@@ -15,6 +15,8 @@ type paramsType struct {
 	DSAPIKey string
 	BotToken string
 
+	ChatCmd string
+
 	DSInitialPrompt  string
 	DSTemperature    float64
 	DSMaxReplyTokens int
@@ -30,6 +32,7 @@ var params paramsType
 func (p *paramsType) Init() error {
 	flag.StringVar(&p.DSAPIKey, "ds-api-key", "", "deepseek api key")
 	flag.StringVar(&p.BotToken, "bot-token", "", "telegram bot token")
+	flag.StringVar(&p.ChatCmd, "chat-cmd", "", "chat command")
 	flag.StringVar(&p.DSInitialPrompt, "ds-initial-prompt", "", "deepseek initial prompt")
 	DSMaxReplyTokensFlag := flag.Int("ds-max-reply-tokens", math.MaxInt, "deepseek max reply tokens")
 	DSHistorySizeFlag := flag.Int("ds-history-size", math.MaxInt, "deepseek message history size")
@@ -47,6 +50,13 @@ func (p *paramsType) Init() error {
 	}
 	if p.DSAPIKey == "" {
 		return fmt.Errorf("ds api key not set")
+	}
+
+	if p.ChatCmd == "" {
+		p.ChatCmd = os.Getenv("CHAT_CMD")
+	}
+	if p.ChatCmd == "" {
+		return fmt.Errorf("chat command not set")
 	}
 
 	if p.DSInitialPrompt == "" {
