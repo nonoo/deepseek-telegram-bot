@@ -8,6 +8,7 @@ import (
 	"time"
 
 	deepseek "github.com/cohesion-org/deepseek-go"
+	"github.com/cohesion-org/deepseek-go/constants"
 	"github.com/go-telegram/bot/models"
 )
 
@@ -42,7 +43,7 @@ func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 		Temperature: float32(params.DSTemperature), // https://api-docs.deepseek.com/quick_start/parameter_settings
 		MaxTokens:   params.DSMaxReplyTokens,
 		Messages: []deepseek.ChatCompletionMessage{{
-			Role:    deepseek.ChatMessageRoleSystem,
+			Role:    constants.ChatMessageRoleSystem,
 			Content: params.DSInitialPrompt,
 		}},
 		Stream: true,
@@ -52,13 +53,13 @@ func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 
 	if msg.ReplyToMessage != nil {
 		request.Messages = append(request.Messages, deepseek.ChatCompletionMessage{
-			Role:    deepseek.ChatMessageRoleAssistant,
+			Role:    constants.ChatMessageRoleAssistant,
 			Content: msg.ReplyToMessage.Text,
 		})
 	}
 
 	request.Messages = append(request.Messages, deepseek.ChatCompletionMessage{
-		Role:    deepseek.ChatMessageRoleUser,
+		Role:    constants.ChatMessageRoleUser,
 		Content: msg.Text,
 	})
 
@@ -105,16 +106,16 @@ func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 
 	if msg.ReplyToMessage != nil {
 		c.dsMsgHistory[msg.Chat.ID] = append(c.dsMsgHistory[msg.Chat.ID], deepseek.ChatCompletionMessage{
-			Role:    deepseek.ChatMessageRoleAssistant,
+			Role:    constants.ChatMessageRoleAssistant,
 			Content: msg.ReplyToMessage.Text,
 		})
 	}
 	c.dsMsgHistory[msg.Chat.ID] = append(c.dsMsgHistory[msg.Chat.ID], deepseek.ChatCompletionMessage{
-		Role:    deepseek.ChatMessageRoleUser,
+		Role:    constants.ChatMessageRoleUser,
 		Content: msg.Text,
 	})
 	c.dsMsgHistory[msg.Chat.ID] = append(c.dsMsgHistory[msg.Chat.ID], deepseek.ChatCompletionMessage{
-		Role:    deepseek.ChatMessageRoleAssistant,
+		Role:    constants.ChatMessageRoleAssistant,
 		Content: text,
 	})
 	for len(c.dsMsgHistory[msg.Chat.ID]) > params.DSHistorySize {
