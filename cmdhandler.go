@@ -12,7 +12,8 @@ import (
 	"github.com/go-telegram/bot/models"
 )
 
-const minReplyInterval = time.Second
+const minReplyIntervalPrivateChat = time.Second
+const minReplyIntervalGroupChat = 3 * time.Second
 
 type cmdHandlerType struct {
 	dsMsgHistory map[int64][]deepseek.ChatCompletionMessage
@@ -73,6 +74,10 @@ func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 	sendChatActionTyping(ctx, msg.Chat.ID)
 
 	lastReplyEditAt := time.Now()
+	minReplyInterval := minReplyIntervalPrivateChat
+	if msg.Chat.ID < 0 {
+		minReplyInterval = minReplyIntervalGroupChat
+	}
 	var replyMsg *models.Message
 	var text string
 	var lastsenttext string
