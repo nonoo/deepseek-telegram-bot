@@ -36,8 +36,7 @@ func filterText(s string) string {
 	return removeNewlineAfterBlockquote(filterHTML(convertLatexToHTML(s)))
 }
 
-func sendMessage(ctx context.Context, chatID int64, s string) (msg *models.Message) {
-	var err error
+func sendMessage(ctx context.Context, chatID int64, s string) (msg *models.Message, err error) {
 	msg, err = telegramBot.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID:    chatID,
 		Text:      filterText(s),
@@ -50,8 +49,7 @@ func sendMessage(ctx context.Context, chatID int64, s string) (msg *models.Messa
 	return
 }
 
-func sendReplyToMessage(ctx context.Context, replyToMsg *models.Message, s string) (msg *models.Message) {
-	var err error
+func sendReplyToMessage(ctx context.Context, replyToMsg *models.Message, s string) (msg *models.Message, err error) {
 	msg, err = telegramBot.SendMessage(ctx, &bot.SendMessageParams{
 		ReplyParameters: &models.ReplyParameters{
 			MessageID: replyToMsg.ID,
@@ -67,8 +65,7 @@ func sendReplyToMessage(ctx context.Context, replyToMsg *models.Message, s strin
 	return
 }
 
-func editReplyToMessage(ctx context.Context, replyMsg *models.Message, s string) (msg *models.Message) {
-	var err error
+func editReplyToMessage(ctx context.Context, replyMsg *models.Message, s string) (msg *models.Message, err error) {
 	msg, err = telegramBot.EditMessageText(ctx, &bot.EditMessageTextParams{
 		MessageID: replyMsg.ID,
 		ChatID:    replyMsg.Chat.ID,
@@ -78,6 +75,21 @@ func editReplyToMessage(ctx context.Context, replyMsg *models.Message, s string)
 	if err != nil {
 		fmt.Println("  reply edit error:", err)
 		msg = replyMsg
+	}
+	return
+}
+
+func deleteMessage(ctx context.Context, msg *models.Message) (success bool, err error) {
+	if msg == nil {
+		return
+	}
+	success, err = telegramBot.DeleteMessage(ctx, &bot.DeleteMessageParams{
+		ChatID:    msg.Chat.ID,
+		MessageID: msg.ID,
+	})
+	if err != nil {
+		fmt.Println("  delete error:", err)
+		success = false
 	}
 	return
 }
@@ -96,7 +108,7 @@ func sendChatActionTyping(ctx context.Context, chatID int64) {
 
 func sendTextToAdmins(ctx context.Context, s string) {
 	for _, chatID := range params.AdminUserIDs {
-		sendMessage(ctx, chatID, s)
+		_, _ = sendMessage(ctx, chatID, s)
 	}
 }
 
@@ -143,14 +155,14 @@ func handleMessage(ctx context.Context, update *models.Update) {
 		case "start":
 			fmt.Println("  interpreting as cmd start")
 			if update.Message.Chat.ID >= 0 { // From user?
-				sendReplyToMessage(ctx, update.Message, "🤖 Welcome! This is the DeepSeek Telegram Bot\n\n"+
+				_, _ = sendReplyToMessage(ctx, update.Message, "🤖 Welcome! This is the DeepSeek Telegram Bot\n\n"+
 					"More info: https://github.com/nonoo/deepseek-telegram-bot")
 			}
 			return
 		default:
 			fmt.Println("  invalid cmd")
 			if update.Message.Chat.ID >= 0 {
-				sendReplyToMessage(ctx, update.Message, errorStr+": invalid command")
+				_, _ = sendReplyToMessage(ctx, update.Message, errorStr+": invalid command")
 			}
 			return
 		}

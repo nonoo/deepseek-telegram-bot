@@ -19,14 +19,14 @@ type cmdHandlerType struct {
 	dsMsgHistory map[int64][]deepseek.ChatCompletionMessage
 }
 
-func (c *cmdHandlerType) reply(ctx context.Context, msg *models.Message, text string) *models.Message {
+func (c *cmdHandlerType) reply(ctx context.Context, msg *models.Message, text string) (replyMsg *models.Message, err error) {
 	if msg == nil || msg.Chat.ID >= 0 {
 		return sendMessage(ctx, msg.Chat.ID, text)
 	}
 	return sendReplyToMessage(ctx, msg, text)
 }
 
-func (c *cmdHandlerType) editReply(ctx context.Context, msg *models.Message, replyMsg *models.Message, text string) *models.Message {
+func (c *cmdHandlerType) editReply(ctx context.Context, msg *models.Message, replyMsg *models.Message, text string) (replyMessage *models.Message, err error) {
 	if replyMsg == nil || msg == nil {
 		return c.reply(ctx, msg, text)
 	}
@@ -67,7 +67,7 @@ func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 	stream, err := dsClient.CreateChatCompletionStream(ctx, request)
 	if err != nil {
 		fmt.Println("    DS CreateChatCompletionStream error:", err)
-		c.reply(ctx, msg, errorStr+": "+err.Error())
+		_, _ = c.reply(ctx, msg, errorStr+": "+err.Error())
 		return
 	}
 
@@ -94,8 +94,8 @@ func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 		for _, choice := range response.Choices {
 			text += choice.Delta.Content
 
-			if time.Since(lastReplyEditAt) > minReplyInterval && text != lastsenttext {
-				replyMsg = c.editReply(ctx, msg, replyMsg, text)
+			if time.Since(lastReplyEditAt) > minReplyInterval && text != "" && text != lastsenttext {
+				replyMsg, _ = c.editReply(ctx, msg, replyMsg, text)
 				lastReplyEditAt = time.Now()
 				lastsenttext = text
 			}
@@ -107,7 +107,11 @@ func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 	}
 
 	fmt.Println("    DS reply:", text)
-	c.editReply(ctx, msg, replyMsg, text)
+	msg, err = c.editReply(ctx, msg, replyMsg, text)
+	if err != nil {
+		_, _ = deleteMessage(ctx, msg)
+		_, _ = sendMessage(ctx, msg.Chat.ID, text)
+	}
 
 	if msg.ReplyToMessage != nil {
 		c.dsMsgHistory[msg.Chat.ID] = append(c.dsMsgHistory[msg.Chat.ID], deepseek.ChatCompletionMessage{
@@ -137,22 +141,22 @@ func (c *cmdHandlerType) Balance(ctx context.Context, msg *models.Message, cmdCh
 	balance, err := deepseek.GetBalance(dsClient, ctx)
 	if err != nil {
 		fmt.Println("    DS GetBalance error:", err)
-		c.reply(ctx, msg, errorStr+": "+err.Error())
+		_, _ = c.reply(ctx, msg, errorStr+": "+err.Error())
 		return
 	}
 
 	if balance == nil || len(balance.BalanceInfos) == 0 {
-		c.reply(ctx, msg, errorStr+": balance not available")
+		_, _ = c.reply(ctx, msg, errorStr+": balance not available")
 		return
 	}
 
 	replyText := fmt.Sprint("💰 ", balance.BalanceInfos[0].TotalBalance, " ", balance.BalanceInfos[0].Currency)
 	fmt.Println("    DS reply:", replyText)
-	c.reply(ctx, msg, replyText)
+	_, _ = c.reply(ctx, msg, replyText)
 }
 
 func (c *cmdHandlerType) Help(ctx context.Context, msg *models.Message, cmdChar string) {
-	sendReplyToMessage(ctx, msg, "🤖 DeepSeek Telegram Bot\n\n"+
+	_, _ = sendReplyToMessage(ctx, msg, "🤖 DeepSeek Telegram Bot\n\n"+
 		"Available commands:\n\n"+
 		cmdChar+params.ChatCmd+" - send chat message\n"+
 		cmdChar+"dsbalance - show balance\n"+
