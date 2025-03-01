@@ -43,8 +43,14 @@ func sendMessage(ctx context.Context, chatID int64, s string) (msg *models.Messa
 		ParseMode: models.ParseModeHTML,
 	})
 	if err != nil {
-		fmt.Println("  send error:", err)
-		msg = nil
+		msg, err = telegramBot.SendMessage(ctx, &bot.SendMessageParams{
+			ChatID: chatID,
+			Text:   filterText(s),
+		})
+		if err != nil {
+			fmt.Println("  send error:", err)
+			msg = nil
+		}
 	}
 	return
 }
@@ -59,8 +65,17 @@ func sendReplyToMessage(ctx context.Context, replyToMsg *models.Message, s strin
 		ParseMode: models.ParseModeHTML,
 	})
 	if err != nil {
-		fmt.Println("  reply send error:", err)
-		msg = replyToMsg
+		msg, err = telegramBot.SendMessage(ctx, &bot.SendMessageParams{
+			ReplyParameters: &models.ReplyParameters{
+				MessageID: replyToMsg.ID,
+			},
+			ChatID: replyToMsg.Chat.ID,
+			Text:   filterText(s),
+		})
+		if err != nil {
+			fmt.Println("  reply send error:", err)
+			msg = replyToMsg
+		}
 	}
 	return
 }
@@ -73,8 +88,15 @@ func editReplyToMessage(ctx context.Context, replyMsg *models.Message, s string)
 		ParseMode: models.ParseModeHTML,
 	})
 	if err != nil {
-		fmt.Println("  reply edit error:", err)
-		msg = replyMsg
+		msg, err = telegramBot.EditMessageText(ctx, &bot.EditMessageTextParams{
+			MessageID: replyMsg.ID,
+			ChatID:    replyMsg.Chat.ID,
+			Text:      filterText(s),
+		})
+		if err != nil {
+			fmt.Println("  reply edit error:", err)
+			msg = replyMsg
+		}
 	}
 	return
 }

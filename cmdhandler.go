@@ -35,6 +35,8 @@ func (c *cmdHandlerType) editReply(ctx context.Context, msg *models.Message, rep
 }
 
 func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
+	chatID := msg.Chat.ID
+
 	if c.dsMsgHistory == nil {
 		c.dsMsgHistory = make(map[int64][]deepseek.ChatCompletionMessage)
 	}
@@ -50,7 +52,7 @@ func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 		Stream: true,
 	}
 
-	request.Messages = append(request.Messages, c.dsMsgHistory[msg.Chat.ID]...)
+	request.Messages = append(request.Messages, c.dsMsgHistory[chatID]...)
 
 	if msg.ReplyToMessage != nil {
 		request.Messages = append(request.Messages, deepseek.ChatCompletionMessage{
@@ -71,11 +73,11 @@ func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 		return
 	}
 
-	sendChatActionTyping(ctx, msg.Chat.ID)
+	sendChatActionTyping(ctx, chatID)
 
 	lastReplyEditAt := time.Now()
 	minReplyInterval := minReplyIntervalPrivateChat
-	if msg.Chat.ID < 0 {
+	if chatID < 0 {
 		minReplyInterval = minReplyIntervalGroupChat
 	}
 	var replyMsg *models.Message
@@ -110,29 +112,29 @@ func (c *cmdHandlerType) Chat(ctx context.Context, msg *models.Message) {
 	msg, err = c.editReply(ctx, msg, replyMsg, text)
 	if err != nil {
 		_, _ = deleteMessage(ctx, msg)
-		_, _ = sendMessage(ctx, msg.Chat.ID, text)
+		_, _ = sendMessage(ctx, chatID, text)
 	}
 
 	if msg.ReplyToMessage != nil {
-		c.dsMsgHistory[msg.Chat.ID] = append(c.dsMsgHistory[msg.Chat.ID], deepseek.ChatCompletionMessage{
+		c.dsMsgHistory[chatID] = append(c.dsMsgHistory[chatID], deepseek.ChatCompletionMessage{
 			Role:    constants.ChatMessageRoleAssistant,
 			Content: msg.ReplyToMessage.Text,
 		})
 	}
-	c.dsMsgHistory[msg.Chat.ID] = append(c.dsMsgHistory[msg.Chat.ID], deepseek.ChatCompletionMessage{
+	c.dsMsgHistory[chatID] = append(c.dsMsgHistory[chatID], deepseek.ChatCompletionMessage{
 		Role:    constants.ChatMessageRoleUser,
 		Content: msg.Text,
 	})
-	c.dsMsgHistory[msg.Chat.ID] = append(c.dsMsgHistory[msg.Chat.ID], deepseek.ChatCompletionMessage{
+	c.dsMsgHistory[chatID] = append(c.dsMsgHistory[chatID], deepseek.ChatCompletionMessage{
 		Role:    constants.ChatMessageRoleAssistant,
 		Content: text,
 	})
-	for len(c.dsMsgHistory[msg.Chat.ID]) > params.DSHistorySize {
-		c.dsMsgHistory[msg.Chat.ID] = c.dsMsgHistory[msg.Chat.ID][1:]
+	for len(c.dsMsgHistory[chatID]) > params.DSHistorySize {
+		c.dsMsgHistory[chatID] = c.dsMsgHistory[chatID][1:]
 	}
 
 	fmt.Println("    DS message history:")
-	for i, msg := range c.dsMsgHistory[msg.Chat.ID] {
+	for i, msg := range c.dsMsgHistory[chatID] {
 		fmt.Printf("    %d: %+v\n", i, msg)
 	}
 }
